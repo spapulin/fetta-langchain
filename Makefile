@@ -1,4 +1,4 @@
-.PHONY: up down start stop shell sync test smoke lint jupyter
+.PHONY: up down start stop shell sync test smoke lint jupyter publish
 
 up:
 	docker compose up -d --build
@@ -34,6 +34,19 @@ jupyter:
 		--no-browser \
 		--ServerApp.token='' \
 		--ServerApp.password=''
+
+publish:
+	@if [ -z "$(BUMP)" ]; then \
+		echo "Usage: make publish BUMP=patch|minor|major"; \
+		exit 1; \
+	fi
+	uv version --bump $(BUMP)
+	$(eval VERSION := $(shell uv version --short))
+	git add pyproject.toml uv.lock
+	git commit -m "chore: release $(VERSION)"
+	git tag v$(VERSION)
+	git push && git push --tags
+	@echo "Released $(VERSION)"
 
 #deploy-env:
 #	uv init --python 3.12 --package --name fetta-langchain
