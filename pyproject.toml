@@ -1,0 +1,55 @@
+[project]
+name = "fetta-langchain"
+version = "0.1.0"
+description = "LangChain document loader that uses fetta - tool that fetches web pages for assistants"
+readme = "README.md"
+authors = [
+    { name = "Sergei" }
+]
+license = "MIT"
+license-files = ["LICENSE"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.12",
+]
+requires-python = ">=3.12"
+dependencies = [
+    "fetta>=0.1.2",
+    "langchain-core>=1.6.4,<2"
+]
+
+[project.urls]
+Homepage = "https://github.com/spapulin/fetta-langchain"
+Repository = "https://github.com/spapulin/fetta-langchain"
+Issues = "https://github.com/spapulin/fetta-langchain/issues"
+
+[project.scripts]
+fetta-langchain = "fetta_langchain:main"
+
+[build-system]
+requires = ["uv_build>=0.12.17,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "ipykernel>=7.3.0",
+    "jupyterlab>=4.6.4",
+    "langchain-classic>=1.0.8",
+    "langchain-deepseek>=1.1.1",
+    "pytest>=8",
+    "pytest-asyncio>=0.24",
+    "python-dotenv>=1.2.3",
+    "ruff>=0.6",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+#[tool.uv.sources]
+#fetta = { path = "../fetta", editable = true }
