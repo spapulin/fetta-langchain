@@ -478,15 +478,11 @@ wheels = [
 [[package]]
 name = "fetta"
 version = "0.1.2"
-source = { registry = "https://pypi.org/simple" }
+source = { git = "https://github.com/spapulin/fetta.git?rev=main#01c7fd68671b95c6f11a5d10b702cd9d300cdf31" }
 dependencies = [
     { name = "beautifulsoup4" },
     { name = "playwright" },
     { name = "requests" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/4f/4d/13e6632179970a7a44a8b81f52f2ec92d002758977a7bb1d2bc0e557f715/fetta-0.1.2.tar.gz", hash = "sha256:91d6a40e4dac0e26a9777a80a498c72b8c3ae65b7a61aad529279807de9a186c", size = 6860, upload-time = "2026-09-24T14:59:13.644Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/85/cd/fcd46fd8b343e00a47af2614234b5fd5518ff1e2e6ae2e1ebe149b1c9bcf/fetta-0.1.2-py3-none-any.whl", hash = "sha256:60968925a398bb181055ba94c516929509ab6aaa443712a35e9028b912f96b3a", size = 10288, upload-time = "2026-09-24T14:59:12.359Z" },
 ]
 
 [[package]]
@@ -512,7 +508,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fetta", specifier = ">=0.1.2" },
+    { name = "fetta", git = "https://github.com/spapulin/fetta.git?rev=main" },
     { name = "langchain-core", specifier = ">=1.6.4,<2" },
 ]
 
