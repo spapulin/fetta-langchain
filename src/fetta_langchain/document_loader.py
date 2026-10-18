@@ -1,4 +1,5 @@
 import asyncio
+import json
 from typing import AsyncIterator, Iterator
 
 from langchain_core.document_loaders import BaseLoader
@@ -18,11 +19,13 @@ class FettaLoader(BaseLoader):
             fetcher: FetcherProtocol | None = None,
             *,
             fetch_kwargs: dict = None,
+            preserve_order: bool = True,
             max_concurrency: int = 5
     ) -> None:
         self.urls = [urls] if isinstance(urls, str) else list(set(urls))
         self._fetcher = fetcher
         self._fetch_kwargs = fetch_kwargs or {}
+        self._preserve_order = preserve_order
         self._max_concurrency = max_concurrency
 
     def lazy_load(self) -> Iterator[Document]:
@@ -49,16 +52,26 @@ class FettaLoader(BaseLoader):
         async def fetch_page(url: str) -> Document:
             async with sem:
                 page = await fetcher.fetch(url, **self._fetch_kwargs)
+                page_metadata = json.dumps(
+                    page.content.metadata,
+                    ensure_ascii=False,
+                    default=str
+                )
                 return Document(
-                    page_content=page.text,
+                    page_content="\n\n".join([page_metadata, page.content.html]),
                     metadata={
-                        "source": page.url,
+                        "url": page.url,
+                        "icon": page.icon,
                         "title": page.title,
+                        "description": page.description,
                         "status": page.status
                     }
                 )
 
         tasks = [asyncio.create_task(fetch_page(u)) for u in self.urls]
-        # Note: We preserve order that matches urls
-        for t in tasks:
-            yield await t
+        if self._preserve_order:
+            for t in tasks:
+                yield await t
+        else:
+            for coro in asyncio.as_completed(tasks):
+                yield await coro
