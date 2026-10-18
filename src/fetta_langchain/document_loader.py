@@ -20,12 +20,16 @@ class FettaLoader(BaseLoader):
             *,
             fetch_kwargs: dict = None,
             preserve_order: bool = True,
+            use_content: tuple[str, ...] = ("metadata", "html"),
             max_concurrency: int = 5
     ) -> None:
-        self.urls = [urls] if isinstance(urls, str) else list(set(urls))
+        self.urls = [urls] if isinstance(urls, str) else urls
         self._fetcher = fetcher
         self._fetch_kwargs = fetch_kwargs or {}
+        if use_content:
+            self._fetch_kwargs.update({"include": use_content})
         self._preserve_order = preserve_order
+        self._use_content = use_content
         self._max_concurrency = max_concurrency
 
     def lazy_load(self) -> Iterator[Document]:
@@ -52,13 +56,22 @@ class FettaLoader(BaseLoader):
         async def fetch_page(url: str) -> Document:
             async with sem:
                 page = await fetcher.fetch(url, **self._fetch_kwargs)
-                page_metadata = json.dumps(
-                    page.content.metadata,
-                    ensure_ascii=False,
-                    default=str
-                )
+                content = []
+                if "metadata" in self._use_content:
+                    content.append(
+                        json.dumps(
+                            page.content.metadata,
+                            ensure_ascii=False,
+                            default=str
+                        )
+                    )
+                if "html" in self._use_content:
+                    content.append(page.content.html)
+                if "text" in self._use_content:
+                    content.append(page.content.text)
+
                 return Document(
-                    page_content="\n\n".join([page_metadata, page.content.html]),
+                    page_content="\n\n".join(content),
                     metadata={
                         "url": page.url,
                         "icon": page.icon,
