@@ -20,16 +20,16 @@ class FettaLoader(BaseLoader):
             *,
             fetch_kwargs: dict = None,
             preserve_order: bool = True,
-            use_content: tuple[str, ...] = ("metadata", "html"),
+            include_sections: tuple[str, ...] = ("metadata", "html"),
             max_concurrency: int = 5
     ) -> None:
         self.urls = [urls] if isinstance(urls, str) else urls
         self._fetcher = fetcher
         self._fetch_kwargs = fetch_kwargs or {}
-        if use_content:
-            self._fetch_kwargs.update({"include": use_content})
+        if include_sections:
+            self._fetch_kwargs.update({"include": include_sections})
         self._preserve_order = preserve_order
-        self._use_content = use_content
+        self._include_sections = include_sections
         self._max_concurrency = max_concurrency
 
     def lazy_load(self) -> Iterator[Document]:
@@ -57,7 +57,7 @@ class FettaLoader(BaseLoader):
             async with sem:
                 page = await fetcher.fetch(url, **self._fetch_kwargs)
                 content = []
-                if "metadata" in self._use_content:
+                if "metadata" in self._include_sections:
                     content.append(
                         json.dumps(
                             page.content.metadata,
@@ -65,9 +65,9 @@ class FettaLoader(BaseLoader):
                             default=str
                         )
                     )
-                if "html" in self._use_content:
+                if "html" in self._include_sections:
                     content.append(page.content.html)
-                if "text" in self._use_content:
+                if "text" in self._include_sections:
                     content.append(page.content.text)
 
                 return Document(
